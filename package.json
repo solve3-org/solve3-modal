@@ -1,0 +1,45 @@
+{
+  "name": "@solve3/modal",
+  "version": "0.1.0",
+  "description": "Modal for solve3 smart contract bot protection",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack --mode production"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/solve3-org/solve3-modal.git"
+  },
+  "keywords": [
+    "solve3",
+    "smart",
+    "contract",
+    "bot",
+    "protection",
+    "solidity"
+  ],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/solve3-org/solve3-modal/issues"
+  },
+  "homepage": "https://github.com/solve3-org/solve3-modal#readme",
+  "dependencies": {
+    "@babel/plugin-proposal-class-properties": "^7.18.6",
+    "@babel/plugin-proposal-private-methods": "^7.18.6",
+    "@babel/preset-env": "^7.18.10",
+    "ethers": "^5.7.0",
+    "file-loader": "^6.2.0",
+    "isomorphic-fetch": "^3.0.0",
+    "isomorphic-ws": "^5.0.0",
+    "p-wait-for": "^5.0.0",
+    "svg-url-loader": "^7.1.1"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.18.13",
+    "babel-loader": "^8.2.5",
+    "webpack": "^5.74.0",
+    "webpack-cli": "^4.10.0"
+  }
+}
