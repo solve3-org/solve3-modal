@@ -317,7 +317,6 @@ const removeContent = () => {
 window.onSlide = (value) => {
   var val = parseInt(value / 10 * 2)
   var pos = 10 + val;
-  console.log(parseInt(val) - 30)
   solve3.setSolution(parseInt(val) - 30);
   document.getElementById("solve3-puzzle").style.left = pos.toString() + "px";
 }

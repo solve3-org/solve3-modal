@@ -1,6 +1,6 @@
 {
   "name": "@solve3/modal",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Modal for solve3 smart contract bot protection",
   "main": "dist/index.js",
   "scripts": {

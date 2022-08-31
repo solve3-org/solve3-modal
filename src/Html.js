@@ -1,4 +1,3 @@
-import logo from './data/solve3-logo-small-shadow.svg';
 export const createModal = () => {
 
   return `
