@@ -174,6 +174,7 @@ export const createModal = () => {
         transform: translate(-50%, -50%);
         -ms-transform: translate(-50%, -50%);
         box-shadow: 0px 0px 5px 1px rgba(3, 3, 3, 0.4);
+        cursor: pointer;
       }
   
       /* Mouse-over effects */
@@ -392,8 +393,6 @@ export const createModal = () => {
               </div>
             </div>
             <div class="s3-001-solve3-sliderWrapper" id="solve3-slider">
-              <input class="s3-001-solve3-slider" type="range" min="0" max="1000" value="0" onpointerup="onSend()">
-              <div class="s3-001-solve3-puzzle-complete s3-001-solve3-solve3Small">Slide to complete the puzzle</div>
             </div>
           </div>
           <div class="s3-001-solve3-footer s3-001-solve3-solve3Small" onclick="window.open('https://solve3.org', '_blank').focus()">
@@ -410,9 +409,9 @@ export const createModal = () => {
 
 export const createSlider = () => {
   document.getElementById("solve3-slider").innerHTML =
-    `<input oninput="onSlide(this.value)" 
-       class="s3-001-solve3-slider" type="range"  min="0"  max="1000" value="0" onpointerup="onSend()">
-    <div class="s3-001-solve3-solve3Small s3-001-solve3-puzzle-complete">Slide to complete the puzzle</div>`;
+    `<div class="s3-001-solve3-solve3Small s3-001-solve3-puzzle-complete">Slide to complete the puzzle</div>
+    <input oninput="onSlide(this.value)" 
+       class="s3-001-solve3-slider" type="range"  min="0"  max="1000" value="0" onchange="onSend()">`;
 }
 
 

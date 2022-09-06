@@ -18,6 +18,10 @@ class Solve3Modal extends EventEmitter {
 
   data;
 
+  logDev(a, b) {
+    if (dev) console.log(a, b);
+  }
+
   constructor(obj) {
     super();
     this.socket = obj;
@@ -27,6 +31,7 @@ class Solve3Modal extends EventEmitter {
       dev = true;
       this.onLoad();
     }
+    this.logDev("constructor", "done")
   }
 
   timeout2 = {
@@ -49,10 +54,24 @@ class Solve3Modal extends EventEmitter {
     }
   }
 
-  async init(obj) {
-    this.error = undefined;
+  async checkSocket() {
+    this.logDev("checksocket", this.socket)
+    if (this.socket.readyState !== 1) {
+      this.logDev("checksocket", "not connected")
+      this.socket = window.getConnectedWs();
+      return await pWaitFor(() => {
+        console.log("wait for socket")
+        return (this.socket.readyState === 1)
+      }, this.timeout10)
+    }
+    return;
+  }
 
-    if (!dev) {
+  async init(obj) {
+    this.logDev("init", obj);
+    this.error = undefined;
+    await this.checkSocket();
+    if (!dev || true) {
       var payload = {
         "account": obj.account,
         "destination": obj.contract,
@@ -73,6 +92,8 @@ class Solve3Modal extends EventEmitter {
     } else {
       this.data = example;
     }
+    this.logDev("init data", this.data);
+    this.socket.close();
     return this.data.handshake.toSign;
   }
 
@@ -81,6 +102,8 @@ class Solve3Modal extends EventEmitter {
   }
 
   async open(msg) {
+    this.logDev("open", msg)
+    await this.checkSocket();
     this.msg = msg;
     if (document.getElementById("solve3-modal").innerHTML !== "" && document.getElementById("solve3-modal").innerHTML !== 'undefined') this.removeContent();
     try {
@@ -101,9 +124,10 @@ class Solve3Modal extends EventEmitter {
   }
 
   loadCaptcha = async () => {
+    await this.checkSocket();
     if (this.secInterval) clearInterval(this.secInterval);
 
-    if (dev) {
+    if (dev && false) {
       this.data = example;
     } else {
       this.data.captchaData = undefined;
@@ -111,10 +135,6 @@ class Solve3Modal extends EventEmitter {
       this.data.error = undefined;
 
       this.data.signedMsg = this.msg;
-      await pWaitFor(() => {
-        console.log("wait for socket")
-        return (this.socket.readyState === 1)
-      }, this.timeout10)
 
       this.socket.send(str("getCaptchaData", this.data));
 
@@ -125,6 +145,7 @@ class Solve3Modal extends EventEmitter {
     }
 
     this.secInterval = this.createSecInterval();
+    this.logDev("loadcaptcha", this.data)
   }
 
   clearSecInterval = () => {
@@ -132,6 +153,7 @@ class Solve3Modal extends EventEmitter {
   }
 
   onLoad = async () => {
+    this.logDev("onload", "")
     await this.loadCaptcha();
     this.modal = document.getElementById("solve3-modal");
     this.modal.innerHTML = createModal();
@@ -142,9 +164,10 @@ class Solve3Modal extends EventEmitter {
   }
 
   onRefresh = async () => {
-    await this.loadCaptcha();
+    this.logDev("onrefresh", "")
     if (document.getElementById("solve3-secs"))
-      document.getElementById("solve3-secs").innerHTML = "(15s)";
+    document.getElementById("solve3-secs").innerHTML = "(15s)";
+    await this.loadCaptcha();
     if (document.getElementById("solve3-slider"))
       createSlider();
     if (document.getElementById("solve3-captcha-images"))
@@ -152,6 +175,7 @@ class Solve3Modal extends EventEmitter {
     if (document.getElementById('solve3-modal-content'))
       document.getElementById('solve3-modal-content').innerHTML = ""
     this.loadEarnings(this.data.captchaData.amount);
+    return;
   }
 
   createSecInterval = () => {
@@ -183,7 +207,9 @@ class Solve3Modal extends EventEmitter {
   }
 
   async validate() {
-    if (!dev) {
+    this.logDev("validate", "")
+    await this.checkSocket();
+    if (!dev || true) {
       this.socket.send(str("validate", this.data));
 
       this.data.verified = undefined;
@@ -199,6 +225,7 @@ class Solve3Modal extends EventEmitter {
         this.data.verified = false;
       }
     }
+    this.logDev("validate data", this.data)
     return this.data;
   }
 
@@ -207,6 +234,7 @@ class Solve3Modal extends EventEmitter {
   }
 
   sendSolution = async () => {
+    await this.checkSocket();
     if (this.secInterval) {
       clearInterval(this.secInterval);
     }
@@ -230,8 +258,9 @@ class Solve3Modal extends EventEmitter {
   }
 
   loadEarnings = async (wei) => {
-    if(!wei) wei = ethers.utils.parseEther('0.00');
-    let amount = ethers.utils.formatEther(wei, {pad: true})
+    this.logDev("earnings", wei)
+    if (!wei) wei = ethers.utils.parseEther('0.00');
+    let amount = ethers.utils.formatEther(wei, { pad: true })
     setEarnAmount(parseFloat(amount).toFixed(2));
   }
 
@@ -250,7 +279,7 @@ class Solve3Modal extends EventEmitter {
   <path d="M10.97 4.97a.75.75 0 0 1 1.071 1.05l-3.992 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.235.235 0 0 1 .02-.022z"/>
 </svg>`
 
- crossMark = `<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" fill="currentColor" class="bi bi-x-square" viewBox="0 0 16 16">
+  crossMark = `<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" fill="currentColor" class="bi bi-x-square" viewBox="0 0 16 16">
  <path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h12zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2z"/>
  <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
 </svg>`
@@ -258,47 +287,65 @@ class Solve3Modal extends EventEmitter {
 
 
 // const ws = new WebSocket.default('wss://api.solve3.org:4004');
-var ws = new WebSocket.default('wss://api.solve3.org:5001');
+const getSocketConnection = () => {
+  console.log("get socket connection")
+  return new WebSocket.default('wss://api.solve3.org:5001')
+}
+
+var ws = getSocketConnection();
+
+function init() {
+  ws.onopen = function open() {
+    // ws.send(str("handshake", {}));
+    console.log("connected to ws")
+  };
+
+  ws.onclose = function close() {
+    console.log('disconnected');
+  };
+
+  ws.onmessage = function incoming(response) {
+    console.log("message incoming")
+    var data = response.data;
+    const dataObj = JSON.parse(data.toString());
+    switch (dataObj.type) {
+      case "pong":
+        console.log("pong");
+        break;
+      case "re-handshake":
+        solve3.setData(dataObj.data);
+        break;
+      case "captchaData":
+        console.log("got captcha data")
+        solve3.setData(dataObj.data)
+        break;
+      case "re-validate":
+        solve3.setData(dataObj.data);
+        break;
+      case "error":
+        solve3.setData(dataObj.data);
+        console.error(dataObj);
+        break;
+      case "default":
+        console.log("default");
+        break;
+    }
+  };
+}
+
+init();
 
 var solve3 = new Solve3Modal(ws);
 
-ws.onopen = function open() {
-  // ws.send(str("handshake", {}));
-  console.log("connected to ws")
-};
-
-ws.onclose = function close() {
-  console.log('disconnected');
-};
-
-ws.onmessage = function incoming(response) {
-  var data = response.data;
-  const dataObj = JSON.parse(data.toString());
-  switch (dataObj.type) {
-    case "pong":
-      console.log("pong");
-      break;
-    case "re-handshake":
-      solve3.setData(dataObj.data);
-      break;
-    case "captchaData":
-      solve3.setData(dataObj.data)
-      break;
-    case "re-validate":
-      solve3.setData(dataObj.data);
-      break;
-    case "error":
-      solve3.setData(dataObj.data);
-      console.error(dataObj);
-      break;
-    case "default":
-      console.log("default");
-      break;
+window.getConnectedWs = () => {
+  console.log("getconnectedws", ws.readyState);
+  if (ws.readyState !== 1) {
+    ws = getSocketConnection();
+    init();
   }
-};
 
-const str = (type, obj) => {
-  return JSON.stringify({ ...obj, type: type });
+  console.log("0.0")
+  return ws;
 }
 
 window.onbeforeunload = function (e) {
@@ -310,10 +357,6 @@ window.onClickHandlerClose = () => {
   removeContent();
 }
 
-const removeContent = () => {
-  document.getElementById("solve3-modal").innerHTML = "";
-}
-
 window.onSlide = (value) => {
   var val = parseInt(value / 10 * 2)
   var pos = 10 + val;
@@ -321,18 +364,26 @@ window.onSlide = (value) => {
   document.getElementById("solve3-puzzle").style.left = pos.toString() + "px";
 }
 
-window.onSend = async () => {
+window.onSend = () => {
   console.log("send")
-  await solve3.sendSolution();
+  solve3.sendSolution();
 }
 
-window.onRefresh = async () => {
-  await solve3.onRefresh();
+window.onRefresh = () => {
+  solve3.onRefresh();
 }
 
 
-window.onSuccess = async function (obj) {
+window.onSuccess = function (obj) {
   solve3.onSuccess(obj)
+}
+
+const str = (type, obj) => {
+  return JSON.stringify({ ...obj, type: type });
+}
+
+const removeContent = () => {
+  document.getElementById("solve3-modal").innerHTML = "";
 }
 
 
